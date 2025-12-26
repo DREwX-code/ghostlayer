@@ -5,6 +5,7 @@
 // @description  Lightweight floating AI chat panel that works on any webpage. Free and no signup required. Uses Pollinations.ai for text and image generation, supports multiple conversations, reasoning levels, response styles, image tools, and a privacy-focused Ghost Mode.
 // @author       DREWX
 // @match        *://*/*
+// @icon         https://github.com/DREwX-code/ghostchatai/blob/main/assets/icon/Icon2_GhostChat_Script.png?raw=true
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-end
