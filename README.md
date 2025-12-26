@@ -1,6 +1,6 @@
-# GhostChat Userscript
+# Ghostlayer Userscript
 
-GhostChat is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
+Ghostlayer is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
 
 It uses the open (no-signup) APIs of [Pollinations.ai](https://github.com/pollinations/pollinations) for text and image generation, in order to provide immediate access to an AI directly during your browsing.
 
@@ -12,7 +12,7 @@ Just a simple, fast, and clean chat, usable on a daily basis.
 
 ---
 
-## What GhostChat does
+## What Ghostlayer does
 
 - Adds an AI chat directly on the websites you visit
 - Allows managing multiple conversations with history
