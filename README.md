@@ -1,6 +1,6 @@
-# Ghostlayer Userscript
+# NeuraVeil Userscript
 
-Ghostlayer is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
+NeuraVeil is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
 
 It uses the open (no-signup) APIs of [Pollinations.ai](https://github.com/pollinations/pollinations) for text and image generation, in order to provide immediate access to an AI directly during your browsing.
 
@@ -12,7 +12,7 @@ Just a simple, fast, and clean chat, usable on a daily basis.
 
 ---
 
-## What Ghostlayer does
+## What NeuraVeil does
 
 - Adds an AI chat directly on the websites you visit
 - Allows managing multiple conversations with history
