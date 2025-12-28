@@ -89,7 +89,7 @@ Everything works without page reloads.
 
 - **Highlight.js**  
   Used for syntax highlighting of code blocks across all supported programming languages.  
-  Website: https://highlightjs.org/
+  Website: https://highlightjs.org/  
   License: BSD 3-Clause
 
 ---
