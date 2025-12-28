@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         NeuraVeil AI
+// @name         NeuraVeil — AI Chat in Your Browser
 // @namespace    https://github.com/DREwX-code
-// @version      1.0.5
+// @version      1.0.6
 // @description  Lightweight floating AI chat panel that works on any webpage. Free and no signup required. Uses Pollinations.ai for text and image generation, supports multiple conversations, reasoning levels, response styles, image tools, and a privacy-focused Ghost Mode.
 // @author       Dℝ∃wX
 // @match        *://*/*
-// @icon         https://raw.githubusercontent.com/DREwX-code/NeuraVeil/refs/heads/main/assets/icon/Icon2_NeuraVeil_Script.png
+// @icon         https://raw.githubusercontent.com/DREwX-code/NeuraVeil/refs/heads/main/assets/icon/Icon_NeuraVeil_Script.png
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @run-at       document-end
@@ -65,6 +65,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 { id: 'geek', label: 'Geek', desc: 'Tech jargon and references' },
                 { id: 'persuasive', label: 'Persuasive', desc: 'Structured and convincing' }
             ];
+            this.INPUT_MAX_ROWS = 5;
             this.DEFAULT_GREETING = 'Hello! I am NeuraVeil. How can I help you today?';
             this.host = null;
             this.shadow = null;
@@ -82,9 +83,11 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 reasoningEffort: 'low',
                 responseStyle: 'default',
                 manualTitle: null,
-                historySearchTerm: ''
+                historySearchTerm: '',
+                historySearchIndex: -1
             };
             this.history = [];
+            this.filteredHistory = [];
             this.currentChatId = Date.now(); // Start with a new session ID
             this.messages = [
                 { role: 'assistant', content: this.DEFAULT_GREETING }
@@ -652,6 +655,18 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 .gc-h-rename svg,
                 .gc-h-delete svg { width: 14px; height: 14px; }
 
+                .gc-history-item.search-focus {
+                    outline: 1px solid var(--gc-primary);
+                    outline-offset: -2px;
+                    background: rgba(139, 92, 246, 0.08);
+                }
+                .gc-h-match {
+                    background: rgba(139, 92, 246, 0.25);
+                    color: var(--gc-text);
+                    border-radius: 4px;
+                    padding: 0 2px;
+                }
+
                 .gc-history-empty {
                     padding: 16px;
                     text-align: center;
@@ -880,6 +895,10 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                     font-size: 14px;
                     outline: none;
                     transition: border-color 0.2s;
+                    min-height: 42px;
+                    resize: none;
+                    overflow-y: hidden;
+                    line-height: 1.5;
                 }
                 .gc-input:focus { border-color: var(--gc-primary); }
                 .gc-send-btn {
@@ -1096,7 +1115,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                     <div class="gc-info-grid">
                         <div class="gc-info-card variant-a">
                             <h4>Version</h4>
-                            <p>1.0.5<br>Last updated: 2025-12-28</p>
+                            <p>1.0.6<br>Last updated: 2025-12-28</p>
                         </div>
 
                         <div class="gc-info-card variant-b">
@@ -1202,7 +1221,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                     </div>
                 </div>
                 <div class="gc-input-area">
-                    <input type="text" class="gc-input" placeholder="Type a message..." spellcheck="false">
+                    <textarea class="gc-input" placeholder="Type a message..." spellcheck="false" rows="1"></textarea>
                     <button class="gc-img-btn" title="Generate Image">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                     </button>
@@ -1285,6 +1304,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             this.elements.sendBtn.addEventListener('click', () => this.handleSend());
             this.elements.imgBtn.addEventListener('click', () => this.toggleImageMode());
 
+            this.elements.input.addEventListener('input', () => this.autoResizeInput());
             this.elements.input.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -1296,6 +1316,9 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.state.isOpen) this.togglePanel(false);
             });
+            document.addEventListener('mousedown', (e) => this.handleOutsideHistoryClick(e));
+
+            this.autoResizeInput();
         }
 
         toggleHeaderExtra() {
@@ -1396,6 +1419,17 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             });
         }
 
+        autoResizeInput() {
+            if (!this.elements.input) return;
+            const el = this.elements.input;
+            el.style.height = 'auto';
+            const lineHeight = parseFloat(getComputedStyle(el).lineHeight) || 20;
+            const maxHeight = lineHeight * this.INPUT_MAX_ROWS;
+            const newHeight = Math.min(el.scrollHeight, maxHeight);
+            el.style.height = `${newHeight}px`;
+            el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden';
+        }
+
         getStylePrompt() {
             switch (this.state.responseStyle) {
                 case 'professional':
@@ -1423,7 +1457,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             this.elements.imgBtn.classList.toggle('active', this.state.isImageMode);
 
             if (this.state.isImageMode) {
-                this.elements.input.placeholder = 'Describe the image you want to generate...';
+                this.elements.input.placeholder = 'Describe your image...';
             } else {
                 this.elements.input.placeholder = 'Type a message...';
             }
@@ -1443,6 +1477,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
 
             const requestChatId = this.currentChatId;
             this.elements.input.value = '';
+            this.autoResizeInput();
             this.appendMessage('user', prompt);
             this.setLoading(true, requestChatId);
 
@@ -1492,6 +1527,8 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 this.elements.settingsPanel.classList.remove('visible');
                 this.state.isInfoOpen = false;
                 this.elements.infoPanel.classList.remove('visible');
+            } else {
+                this.resetHistorySearch();
             }
             if (this.state.isHistoryOpen) this.renderHistoryList();
         }
@@ -1509,7 +1546,8 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
         }
 
         handleHistorySearch(value) {
-            this.state.historySearchTerm = (value || '').trim();
+            this.state.historySearchTerm = value || '';
+            this.state.historySearchIndex = this.state.historySearchTerm ? 0 : -1;
             if (this.state.historySearchTerm) {
                 this.elements.historySearchWrap.classList.add('active');
             }
@@ -1517,6 +1555,31 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
         }
 
         handleHistorySearchKeydown(e) {
+            const items = this.filteredHistory || [];
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (!items.length) return;
+                const next = this.state.historySearchIndex + 1;
+                this.state.historySearchIndex = next >= items.length ? items.length - 1 : next;
+                this.renderHistoryList();
+                return;
+            }
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (!items.length) return;
+                const prev = this.state.historySearchIndex - 1;
+                this.state.historySearchIndex = prev < 0 ? 0 : prev;
+                this.renderHistoryList();
+                return;
+            }
+            if (e.key === 'Enter') {
+                if (items.length && this.state.historySearchIndex >= 0) {
+                    e.preventDefault();
+                    const chat = items[this.state.historySearchIndex];
+                    if (chat) this.loadChat(chat.id);
+                }
+                return;
+            }
             if (e.key === 'Escape') {
                 e.stopPropagation();
                 if (this.state.historySearchTerm) {
@@ -1535,6 +1598,8 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
 
         resetHistorySearch() {
             this.state.historySearchTerm = '';
+            this.state.historySearchIndex = -1;
+            this.filteredHistory = this.history;
             if (this.elements.historySearchInput) {
                 this.elements.historySearchInput.value = '';
                 this.elements.historySearchInput.blur();
@@ -1543,11 +1608,24 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             this.renderHistoryList();
         }
 
+        handleOutsideHistoryClick(e) {
+            if (!this.state.isHistoryOpen) return;
+            if (!this.elements.historyPanel) return;
+            const path = e.composedPath ? e.composedPath() : [];
+            const inHistory = path.includes(this.elements.historyPanel);
+            const inSearch = path.includes(this.elements.historySearchWrap);
+            if (!inHistory && !inSearch) {
+                this.resetHistorySearch();
+            }
+        }
+
         startNewChat() {
             this.currentChatId = Date.now();
             this.messages = [];
             this.setActiveChatId(this.currentChatId);
             this.state.manualTitle = null;
+            this.elements.input.value = '';
+            this.autoResizeInput();
 
             // Clear UI
             this.elements.msgContainer.innerHTML = '';
@@ -1580,6 +1658,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                     this.history = JSON.parse(saved);
                 } catch (e) { console.error('NeuraVeil: Corrupt history', e); }
             }
+            this.filteredHistory = this.history;
         }
 
         restoreActiveChat() {
@@ -1781,9 +1860,16 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
             return index === 0 && msg?.role === 'assistant' && msg?.content === this.DEFAULT_GREETING;
         }
 
+        highlightHistoryTitle(title, query) {
+            if (!query) return this.escapeHtml(title);
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(escapedQuery, 'gi');
+            return this.escapeHtml(title).replace(regex, (match) => `<span class="gc-h-match">${match}</span>`);
+        }
+
         renderHistoryList() {
             this.elements.historyList.innerHTML = '';
-            const query = (this.state.historySearchTerm || '').trim().toLowerCase();
+            const query = (this.state.historySearchTerm || '').toLowerCase();
 
             if (this.elements.historySearchInput) {
                 this.elements.historySearchInput.value = this.state.historySearchTerm || '';
@@ -1801,6 +1887,20 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 })
                 : this.history;
 
+            this.filteredHistory = items;
+
+            if (query) {
+                if (items.length === 0) {
+                    this.state.historySearchIndex = -1;
+                } else if (this.state.historySearchIndex < 0) {
+                    this.state.historySearchIndex = 0;
+                } else if (this.state.historySearchIndex >= items.length) {
+                    this.state.historySearchIndex = items.length - 1;
+                }
+            } else {
+                this.state.historySearchIndex = -1;
+            }
+
             if (!items.length) {
                 const empty = document.createElement('div');
                 empty.className = 'gc-history-empty';
@@ -1809,14 +1909,18 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
                 return;
             }
 
-            items.forEach(chat => {
+            items.forEach((chat, index) => {
                 const item = document.createElement('div');
                 item.className = 'gc-history-item';
                 if (chat.id === this.currentChatId) item.classList.add('active');
+                const isFocused = query && index === this.state.historySearchIndex;
+                if (isFocused) item.classList.add('search-focus');
 
                 const date = new Date(chat.timestamp).toLocaleDateString();
+                const titleText = chat.title || '';
+                const highlightedTitle = this.highlightHistoryTitle(titleText, query);
                 item.innerHTML = `
-                    <div class="gc-h-title">${chat.title}</div>
+                    <div class="gc-h-title">${highlightedTitle}</div>
                     <div class="gc-h-date">${date}</div>
                     <div class="gc-h-rename" title="Rename">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
@@ -2957,6 +3061,7 @@ Source: https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/Gre
 
             const requestChatId = this.currentChatId;
             this.elements.input.value = '';
+            this.autoResizeInput();
             this.appendMessage('user', text);
             this.setLoading(true, requestChatId);
 
