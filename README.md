@@ -4,6 +4,8 @@
 [![Version](https://img.shields.io/badge/dynamic/json?style=flat-square&label=version&color=%235865f2&query=%24.version&url=https%3A%2F%2Fapi.greasyfork.org%2Fen%2Fscripts%2F560252.json)](https://greasyfork.org/en/scripts/560252-neuraveil-ai-chat-in-your-browser/versions)
 [![GitHub license](https://img.shields.io/github/license/DREwX-code/neuraveil?style=flat-square)](./LICENSE)
 
+![NeuraVeil banner](./assets/media/NeuraVeil-banner.png)
+
 [NeuraVeil](https://greasyfork.org/en/scripts/560252-neuraveil-ai-chat-in-your-browser) is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
 
 It uses the open (no-signup) APIs of [Pollinations.ai](https://github.com/pollinations/pollinations) for text and image generation, in order to provide immediate access to an AI directly during your browsing.
@@ -13,8 +15,6 @@ No heavy interface.
 No account.
 
 Just a simple, fast, and clean chat, usable on a daily basis.
-
----
 
 ## What NeuraVeil does
 
@@ -75,8 +75,6 @@ Everything works without page reloads.
 - Typing indicator
 - Protection against bugs when switching conversations during a request
 
----
-
 ## Header controls
 
 - Arrow: show or hide additional icons
@@ -85,33 +83,50 @@ Everything works without page reloads.
 - Info icon (i): open the information panel
 - History, new chat, switch to sidebar, close
 
----
-
 ## Important notes
 
 - Ghost Mode: no data is saved by the script
 - Auto and Ultra modes may automatically suggest relevant images
 - Uses Pollinations.ai, a free, fast, and performant API
 
----
-
 ## Third-Party Libraries
 
-- **Highlight.js**  
-  Used for syntax highlighting of code blocks across all supported programming languages.  
-  Website: <https://highlightjs.org/>
-  License: BSD 3-Clause
+- **Highlight.js**
+  - Used for syntax highlighting of code blocks across all supported programming languages.
+  - Website: https://highlightjs.org/
+  - License: BSD 3-Clause
+
+- **Pollinations.ai**  
+  - Used as a public, open API for text and image generation.  
+  - Website: https://pollinations.ai/  
+  - Source code: <https://github.com/pollinations/pollinations>
+  - License: MIT
+
+- **AI Horde (Stable Horde)**  
+  - Used as a community-driven image generation backend.  
+  - Website: <https://aihorde.net/>
+  - Source code: <https://github.com/Haidra-Org/AI-Horde> 
+  - License: AGPL-3.0
+
+- **GreasyFork SVG Icon**  
+  - Used as an interface icon.  
+  - Created by denilsonsa.  
+  - Source: <https://github.com/denilsonsa/denilsonsa.github.io/blob/master/icons/GreasyFork.svg>
+  - License: Not explicitly declared (used with attribution).
+
 
 ---
+
+## Feedback and contributions
+
+Feedback, bug reports, and improvement suggestions are welcome via [GreasyFork feedback](https://greasyfork.org/fr/scripts/560252-neuraveil-ai-chat-in-your-browser/discussions/318048) or [Github Issues](https://github.com/DREwX-code/neuraveil/issues).
 
 ## Author
 
-Developed and maintained by **Dℝ∃wX** (DREwX-code).  
+Developed and maintained by <strong>Dℝ∃wX</strong> (<strong><a href="https://github.com/DREwX-code">DREwX-code</a>).  
 Project designed for simplicity, performance, and user-focused evolution.
-
----
 
 ## License
 
-This project is licensed under **Apache 2.0**.  
-Free to use, modify, and contribute.
+This project is licensed under the <strong>Apache License 2.0</strong>.  
+You are free to use, modify, and redistribute it under the terms of the license.
