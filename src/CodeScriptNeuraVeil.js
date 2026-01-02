@@ -1,8 +1,18 @@
 // ==UserScript==
 // @name         NeuraVeil - AI Chat in Your Browser
+// @name:fr      NeuraVeil - Chat IA dans votre navigateur
+// @name:es      NeuraVeil - Chat de IA en tu navegador
+// @name:de      NeuraVeil - KI-Chat in deinem Browser
+// @name:it      NeuraVeil - Chat IA nel tuo browser
+// @name:ja      NeuraVeil - ブラウザ内AIチャット
 // @namespace    https://github.com/DREwX-code
-// @version      1.1.0
-// @description  Lightweight floating AI chat panel that works on any webpage. Free and no signup required. Uses Pollinations.ai for text and image generation, supports multiple conversations, reasoning levels, response styles, image tools, and a privacy-focused Ghost Mode.
+// @version      1.1.1
+// @description     Lightweight floating AI chat panel that works on any webpage. Free and no signup required. Uses Pollinations.ai for text and image generation, supports multiple conversations, reasoning levels, response styles, image tools, and a privacy-focused Ghost Mode.
+// @description:fr  Panneau de chat IA flottant, léger et moderne, utilisable sur n’importe quelle page web. Gratuit et sans inscription. Utilise Pollinations.ai pour la génération de texte et d’images, avec conversations multiples, niveaux de raisonnement, styles de réponse, outils d’image et un mode Ghost axé sur la confidentialité.
+// @description:es  Panel de chat IA flotante, ligero y moderno, que funciona en cualquier página web. Gratis y sin registro. Utiliza Pollinations.ai para la generación de texto e imágenes, con múltiples conversaciones, niveles de razonamiento, estilos de respuesta, herramientas de imagen y un modo Ghost centrado en la privacidad.
+// @description:de  Leichtes, schwebendes KI-Chatpanel, das auf jeder Webseite funktioniert. Kostenlos und ohne Registrierung. Nutzt Pollinations.ai für Text- und Bildgenerierung, unterstützt mehrere Unterhaltungen, Denkstufen, Antwortstile, Bildtools und einen datenschutzorientierten Ghost-Modus.
+// @description:it  Pannello di chat IA fluttuante, leggero e moderno, utilizzabile su qualsiasi pagina web. Gratuito e senza registrazione. Utilizza Pollinations.ai per la generazione di testo e immagini, con conversazioni multiple, livelli di ragionamento, stili di risposta, strumenti per le immagini e una modalità Ghost orientata alla privacy.
+// @description:ja  あらゆるWebページで使用できる、軽量でモダンなフローティングAIチャットパネル。無料・登録不要。Pollinations.aiを使用したテキストおよび画像生成に対応し、複数の会話、推論レベル、応答スタイル、画像ツール、プライバシー重視のゴーストモードを搭載。
 // @author       Dℝ∃wX
 // @match        *://*/*
 // @icon         https://raw.githubusercontent.com/DREwX-code/NeuraVeil/refs/heads/main/assets/icon/Icon_NeuraVeil_Script.png
@@ -1378,7 +1388,7 @@ License: BSD 3-Clause
                     <div class="nv-info-grid">
                         <div class="nv-info-card variant-a">
                             <h4>Version</h4>
-                            <p>1.1.0<br>Last updated: 2026-01-02</p>
+                            <p>1.1.1<br>Last updated: 2026-01-02</p>
                         </div>
 
                         <div class="nv-info-card variant-b">
@@ -1394,8 +1404,7 @@ License: BSD 3-Clause
                                     viewBox="0 0 96 96"
                                     width="18"
                                     height="18"
-                                    aria-hidden="true"
-                                >
+                                    aria-hidden="true">
                                     <circle fill="#000" r="48" cy="48" cx="48"/>
 
                                     <clipPath id="GreasyForkCircleClip">
@@ -1409,8 +1418,7 @@ License: BSD 3-Clause
                                         font-size="18"
                                         font-family="'DejaVu Sans', Verdana, Arial, sans-serif"
                                         letter-spacing="-0.75"
-                                        pointer-events="none"
-                                    >
+                                        pointer-events="none">
                                         <tspan x="51" y="13">= null;</tspan>
                                         <tspan x="56" y="35">function init</tspan>
                                         <tspan x="49" y="57">for (var i = 0;</tspan>
@@ -1463,7 +1471,7 @@ License: BSD 3-Clause
                             <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20.8 4.6c-1.5-1.7-4.2-1.7-5.7 0L12 7.7 8.9 4.6c-1.6-1.7-4.2-1.7-5.7 0-1.9 2-1.8 5.1.2 7.1L12 21l8.6-9.3c2-2 2.1-5.1.2-7.1z"></path>
                             </svg>
-                            <span>Soutenir de projet :</span>
+                            <span>Support the project :</span>
                         </div>
                         <div class="nv-info-support-links">
                             <a class="nv-support-link" href="https://greasyfork.org/en/scripts/560252-neuraveil-ai-chat-in-your-browser/feedback" target="_blank" rel="noopener noreferrer" style="--nv-support-accent: 96, 165, 250;">
@@ -1476,7 +1484,7 @@ License: BSD 3-Clause
                                 <svg viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="12 2 15 8.5 22 9.3 17 14.1 18.4 21 12 17.6 5.6 21 7 14.1 2 9.3 9 8.5 12 2"></polygon>
                                 </svg>
-                                <span>Stars me</span>
+                                <span>Star the project</span>
                             </a>
                             <a class="nv-support-link" href="https://github.com/DREwX-code/NeuraVeil/issues" target="_blank" rel="noopener noreferrer" style="--nv-support-accent: 239, 68, 68;">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
