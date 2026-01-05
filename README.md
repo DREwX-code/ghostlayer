@@ -109,6 +109,13 @@ Everything works without page reloads.
   - Source code: <https://github.com/Haidra-Org/AI-Horde> 
   - License: AGPL-3.0
 
+- **Openverse**
+  - Used for searching and retrieving openly licensed web images.
+  - Provides attribution, license information, and source links for each image.
+  - Website: <https://openverse.org/>
+  - Source code: <https://github.com/WordPress/openverse>
+  - License: CC0 (API and metadata)
+
 - **GreasyFork SVG Icon**  
   - Used as an interface icon.  
   - Created by denilsonsa.  
