@@ -40,7 +40,7 @@ Everything works without page reloads.
 - Sidebar mode (side panel), movable to the left or right with position saved
 - Instant open and close
 - Quick close with the Escape key
-- A dedicated “Danger Zone” to reset all settings and conversations
+- A dedicated “Danger Zone” to reset all local settings and conversations
 
 ### Conversations
 
@@ -79,7 +79,8 @@ Everything works without page reloads.
 - Clickable links
 - Multiple responses with tabs
 - Quick actions: copy, regenerate, download
-- Typing indicator
+- Table rendering with dedicated styling and actions
+- Rendering mathematical formulas with KaTeX support
 - Protection against bugs when switching conversations during a request
 - Keyboard input is fully isolated when typing in the chat, preventing website shortcuts from interfering
 
@@ -93,6 +94,7 @@ Everything works without page reloads.
 
 ## Important notes
 
+- NeuraVeil is an AI assistant and may generate inaccurate information. Always verify critical or sensitive information independently.
 - Ghost Mode: no data is saved by the script
 - Auto and Ultra modes may automatically suggest relevant images
 - Uses Pollinations.ai, a free, fast, and performant API
@@ -105,12 +107,19 @@ Everything works without page reloads.
 
 - **Highlight.js**
   - Used for syntax highlighting of code blocks across all supported programming languages.
-  - Website: https://highlightjs.org/
+  - Website: <https://highlightjs.org/>
+  - Source code: <https://github.com/highlightjs/highlight.js>
   - License: BSD 3-Clause
+
+- **KaTeX**
+  - Used for rendering mathematical formulas with proper LaTeX-style formatting.
+  - Website: <https://katex.org/>
+  - Source code: <https://github.com/KaTeX/KaTeX>
+  - License: MIT
 
 - **Pollinations.ai**  
   - Used as a public, open API for text and image generation.  
-  - Website: https://pollinations.ai/  
+  - Website: <https://pollinations.ai/>
   - Source code: <https://github.com/pollinations/pollinations>
   - License: MIT
 
