@@ -57,6 +57,33 @@ Everything works without page reloads.
 - Available response styles:
   Default, Professional, Direct, Teaching, Creative, Technical, Geek, Persuasive
 
+<details>
+  <summary><strong>How reasoning levels work</strong></summary>
+
+  Reasoning levels control how deeply the AI analyzes a request before responding.
+
+  - <strong>Minimal / Low</strong>: fast, concise answers with minimal analysis  
+  - <strong>Medium</strong>: balanced reasoning and clarity  
+  - <strong>High</strong>: deeper analysis, structured responses, and may generate images when relevant  
+  - <strong>Ultra</strong>: maximum reasoning depth, refined answers, automatic rewriting if the input is unclear, and may generate images when relevant  
+
+  Internal reasoning is never exposed to the user. Only the final response is shown.
+</details>
+<details>
+  <summary><strong>Response styles explained</strong></summary>
+
+  Response styles affect tone and presentation, not correctness.
+
+  - <strong>Professional</strong>: formal, structured answers  
+  - <strong>Direct</strong>: short replies, no fluff  
+  - <strong>Teaching</strong>: step-by-step explanations  
+  - <strong>Creative</strong>: vivid language and originality  
+  - <strong>Technical</strong>: precise, developer-oriented  
+  - <strong>Geek</strong>: tech jargon and references  
+  - <strong>Persuasive</strong>: structured and convincing tone
+</details>
+
+
 ### Ghost Mode (privacy)
 
 - Disables all saving (no conversations are stored)
@@ -71,7 +98,7 @@ Everything works without page reloads.
 - Web image search via Openverse, including image source, author, and license information
 - Openverse image actions: copy image, download image, and copy image link
 - Automatic preloading
-- In Ultra mode, image suggestions may appear automatically
+- In High and Ultra modes, images may be generated automatically when relevant
 
 ### Rendering and usability
 
