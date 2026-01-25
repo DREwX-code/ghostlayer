@@ -174,7 +174,7 @@ Everything works without page reloads.
 
 ## Feedback and contributions
 
-Feedback, bug reports, and improvement suggestions are welcome via [GreasyFork feedback](https://greasyfork.org/fr/scripts/560252-neuraveil-ai-chat-in-your-browser/discussions/318048) or [GitHub Issues](https://github.com/DREwX-code/neuraveil/issues).
+Feedback, bug reports, and improvement suggestions are welcome via [GreasyFork feedback](https://greasyfork.org/scripts/560252-neuraveil-ai-chat-in-your-browser/feedback) or [GitHub Issues](https://github.com/DREwX-code/neuraveil/issues).
 
 ## Author
 
