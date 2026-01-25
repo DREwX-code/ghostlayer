@@ -40,11 +40,11 @@ Everything works without page reloads.
 - Sidebar mode (side panel), movable to the left or right with position saved
 - Instant open and close
 - Quick close with the Escape key
-- A dedicated “Danger Zone” to reset all local settings and conversations
+- A dedicated Data Management section to reset all locally stored settings and conversations
 
 ### Conversations
 
-- **Unlimited** saved conversations
+- High number of saved conversations (stored locally in the browser)
 - Load, rename, or delete a conversation
 - Clear the entire history
 - Start a new chat at any time
@@ -174,7 +174,7 @@ Everything works without page reloads.
 
 ## Feedback and contributions
 
-Feedback, bug reports, and improvement suggestions are welcome via [GreasyFork feedback](https://greasyfork.org/fr/scripts/560252-neuraveil-ai-chat-in-your-browser/discussions/318048) or [Github Issues](https://github.com/DREwX-code/neuraveil/issues).
+Feedback, bug reports, and improvement suggestions are welcome via [GreasyFork feedback](https://greasyfork.org/fr/scripts/560252-neuraveil-ai-chat-in-your-browser/discussions/318048) or [GitHub Issues](https://github.com/DREwX-code/neuraveil/issues).
 
 ## Author
 
