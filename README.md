@@ -125,7 +125,6 @@ Everything works without page reloads.
 - Ghost Mode: no data is saved by the script
 - Auto and Ultra modes may automatically suggest relevant images
 - Uses Pollinations.ai, a free, fast, and performant API
-- Uses CSP-safe network requests to remain functional on strict websites (e.g. GitHub)
 - On websites with strict Content Security Policies (such as GitHub),
   external Highlight.js theme styles may be blocked by the browser.
   This does not affect core functionality. A fix is currently being worked on.
