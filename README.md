@@ -38,6 +38,7 @@ Everything works without page reloads.
 - Clicking the chat icon toggles the chat open or closed
 - Dynamic chat bubble positioning to stay within the viewport
 - Sidebar mode (side panel), movable to the left or right with position saved
+- Resizable sidebar with adjustable width (320–720px), automatically saved
 - Instant open and close
 - Quick close with the Escape key
 - A dedicated Data Management section to reset all locally stored settings and conversations
@@ -49,6 +50,7 @@ Everything works without page reloads.
 - Clear the entire history
 - Start a new chat at any time
 - It is recommended to regularly remove unused conversations to avoid unnecessary storage usage
+- Clear visibility on local storage usage for conversations and settings
 
 ### Reasoning and tone
 
@@ -114,7 +116,7 @@ Everything works without page reloads.
 ## Header controls
 
 - Arrow: show or hide additional icons
-- Settings: choose the response style
+- Settings: response customization and data management
 - Ghost icon: enable or disable Ghost Mode
 - Info icon (i): open the information panel
 - History, new chat, switch to sidebar, close
