@@ -34,12 +34,13 @@
 // @description:pl  Lekki, nowoczesny pływający panel czatu AI działający na każdej stronie internetowej. Darmowy i bez rejestracji. Wykorzystuje Pollinations.ai do generowania tekstu i obrazów, obsługuje wiele rozmów, poziomy rozumowania, style odpowiedzi, narzędzia graficzne oraz tryb Ghost nastawiony na prywatność.
 // @description:tr  Her web sayfasında çalışan hafif ve modern bir yüzen yapay zeka sohbet paneli. Ücretsiz ve kayıt gerektirmez. Metin ve görsel üretimi için Pollinations.ai kullanır; çoklu sohbetler, akıl yürütme seviyeleri, yanıt stilleri, görsel araçlar ve gizliliğe odaklı Ghost modunu destekler.
 
-// @version      1.1.4
+// @version      1.1.5
 // @author       Dℝ∃wX
 // @match        *://*/*
 // @icon         https://raw.githubusercontent.com/DREwX-code/NeuraVeil/refs/heads/main/assets/icon/Icon_NeuraVeil_Script.png
 // @grant        GM_getValue
 // @grant        GM_setValue
+// @grant        GM_listValues
 // @grant        GM_xmlhttpRequest
 // @require      https://raw.githubusercontent.com/DREwX-code/neuraveil/main/src/neuraveil.styles.js
 // @connect      text.pollinations.ai
@@ -53,6 +54,8 @@
 // @copyright    2026 Dℝ∃wX
 // @noframes
 // @tag          productivity
+// @tag          ai
+// @tag          chat
 // ==/UserScript==
 
 /*
@@ -191,6 +194,9 @@ Always verify critical or sensitive information independently.
             this.IMAGE_PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
             this.INPUT_MAX_ROWS = 5;
             this.SIDEBAR_WIDTH = 430;
+            this.MIN_SIDEBAR_WIDTH = 320;
+            this.MAX_SIDEBAR_WIDTH = 720;
+            this.TOTAL_STORAGE_BYTES = 10 * 1024 * 1024;
             this.DEFAULT_GREETING = 'Hello! I am NeuraVeil. How can I help you today?';
             this.hljsReady = null;
             this.hljsCssLoaded = false;
@@ -225,6 +231,7 @@ Always verify critical or sensitive information independently.
                 isGhostMode: false,
                 isImageMode: false,
                 sidebarSide: 'right',
+                sidebarWidth: this.SIDEBAR_WIDTH,
                 reasoningEffort: 'low',
                 responseStyle: 'default',
                 manualTitle: null,
@@ -240,6 +247,7 @@ Always verify critical or sensitive information independently.
             ];
             this.loadingByChat = new Map();
             this.loadingTextByChat = new Map();
+            this.storageUsageInterval = null;
 
             this.recognition = null;
             this.isRecording = false;
@@ -356,6 +364,7 @@ Always verify critical or sensitive information independently.
             this.attachEvents();
             this.loadSavedReasoning();
             this.loadSavedStyle();
+            this.loadSavedSidebarWidth();
             this.loadSavedSidebarSide();
             this.restoreActiveChat();
             this.restoreActiveChat();
@@ -663,10 +672,11 @@ Always verify critical or sensitive information independently.
                     </button>
                     <div class="nv-info-title">Information</div>
 
+                    <div class="nv-info-section-title">Script Overview</div>
                     <div class="nv-info-grid">
                         <div class="nv-info-card variant-a">
                             <h4>Version</h4>
-                            <p>1.1.3<br>Last updated: 2026-01-06</p>
+                            <p>1.1.5<br>Last updated: 2026-02-31</p>
                         </div>
 
                         <div class="nv-info-card variant-b">
@@ -744,6 +754,7 @@ Always verify critical or sensitive information independently.
                         </div>
                     </div>
 
+                    <div class="nv-info-section-title">Community & Support</div>
                     <div class="nv-info-support">
                         <div class="nv-info-support-title">
                             <svg viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -775,6 +786,36 @@ Always verify critical or sensitive information independently.
                                 </svg>
                                 <span>GitHub Issues</span>
                             </a>
+                        </div>
+                    </div>
+                    <div class="nv-info-section-title">Storage & Data</div>
+                    <div class="nv-storage" id="nv-storage-usage">
+                        <div class="nv-storage-header">Storage usage</div>
+                        <div class="nv-storage-body">
+                            <div class="nv-storage-chart">
+                                <svg viewBox="0 0 100 100" class="nv-storage-donut" aria-hidden="true">
+                                    <circle class="nv-storage-ring" cx="50" cy="50" r="36"></circle>
+                                    <circle class="nv-storage-seg nv-storage-conv" cx="50" cy="50" r="36"></circle>
+                                    <circle class="nv-storage-seg nv-storage-settings" cx="50" cy="50" r="36"></circle>
+                                </svg>
+                                <div class="nv-storage-center">
+                                    <div class="nv-storage-used" id="nv-storage-used">0 MB</div>
+                                    <div class="nv-storage-total" id="nv-storage-total">0%</div>
+                                </div>
+                            </div>
+                            <div class="nv-storage-meta">
+                                <div class="nv-storage-remaining" id="nv-storage-remaining">Remaining 0 MB / 0 MB</div>
+                                <div class="nv-storage-legend">
+                                    <div class="nv-storage-legend-item" data-nv-storage-focus="conversations">
+                                        <span class="nv-storage-swatch nv-storage-conv"></span>
+                                        <span>Conversations</span>
+                                    </div>
+                                    <div class="nv-storage-legend-item" data-nv-storage-focus="settings">
+                                        <span class="nv-storage-swatch nv-storage-settings"></span>
+                                        <span>Settings / Parameters</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -841,6 +882,7 @@ Always verify critical or sensitive information independently.
                         </div>
                     </div>
                 </div>
+                <div class="nv-sidebar-resizer" id="nv-sidebar-resizer" style="position:absolute;top:0;bottom:0;width:6px;cursor:ew-resize;z-index:5;"></div>
             `;
 
             this.shadow.appendChild(trigger);
@@ -884,7 +926,8 @@ Always verify critical or sensitive information independently.
                 modalOverlay: panel.querySelector('#nv-modal-overlay'),
                 modalText: panel.querySelector('#nv-modal-text'),
                 modalCancel: panel.querySelector('#nv-modal-cancel'),
-                modalConfirm: panel.querySelector('#nv-modal-confirm')
+                modalConfirm: panel.querySelector('#nv-modal-confirm'),
+                sidebarResizer: panel.querySelector('#nv-sidebar-resizer')
             };
 
             this.buildSettingsOptions();
@@ -947,6 +990,7 @@ Always verify critical or sensitive information independently.
                     this.temporarilyHideSidebarArrow();
                 }
             });
+            this.initSidebarResize();
 
             this.elements.micBtn.addEventListener('click', () => this.toggleSpeech());
             this.elements.sendBtn.addEventListener('click', () => this.handleSend());
@@ -963,11 +1007,47 @@ Always verify critical or sensitive information independently.
 
             // Close logic for floating mode
             document.addEventListener('keydown', (e) => {
+                const target = e.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
                 if (e.key === 'Escape' && this.state.isOpen) this.togglePanel(false);
             });
             document.addEventListener('mousedown', (e) => this.handleOutsideHistoryClick(e));
 
             this.autoResizeInput();
+        }
+
+        initSidebarResize() {
+            const resizer = this.elements.sidebarResizer;
+            if (!resizer) return;
+
+            resizer.addEventListener('pointerdown', (e) => {
+                if (!this.state.isSidebar) return;
+                e.preventDefault();
+                const startX = e.clientX;
+                const startWidth = this.state.sidebarWidth || this.SIDEBAR_WIDTH;
+                const isLeft = this.state.sidebarSide === 'left';
+                const body = document.body;
+                const prevSelect = body.style.userSelect;
+                body.style.userSelect = 'none';
+                resizer.setPointerCapture(e.pointerId);
+
+                const onMove = (moveEvent) => {
+                    const delta = isLeft ? (moveEvent.clientX - startX) : (startX - moveEvent.clientX);
+                    this.state.sidebarWidth = this.clampSidebarWidth(startWidth + delta);
+                    this.applySidebarWidth();
+                };
+
+                const onUp = () => {
+                    resizer.releasePointerCapture(e.pointerId);
+                    body.style.userSelect = prevSelect;
+                    window.removeEventListener('pointermove', onMove);
+                    window.removeEventListener('pointerup', onUp);
+                    GM_setValue('NeuraVeil_sidebar_width', this.state.sidebarWidth);
+                };
+
+                window.addEventListener('pointermove', onMove);
+                window.addEventListener('pointerup', onUp);
+            });
         }
 
         bindInputKeyShield(el) {
@@ -1150,6 +1230,36 @@ Always verify critical or sensitive information independently.
 
         buildSettingsOptions() {
             this.elements.settingsList.innerHTML = '';
+
+            const responseTitle = document.createElement('div');
+            responseTitle.className = 'nv-settings-section-title';
+            responseTitle.textContent = 'Response Personalization';
+            this.elements.settingsList.appendChild(responseTitle);
+
+            const selector = document.createElement('div');
+            selector.className = 'nv-style-select';
+
+            const toggle = document.createElement('button');
+            toggle.type = 'button';
+            toggle.className = 'nv-style-toggle';
+            toggle.id = 'nv-style-toggle';
+            toggle.innerHTML = `
+                <div class="nv-style-toggle-text">
+                    <div class="nv-settings-label"></div>
+                    <div class="nv-settings-desc"></div>
+                </div>
+                <svg class="nv-style-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            `;
+            toggle.addEventListener('click', () => {
+                selector.classList.toggle('open');
+            });
+
+            const optionsWrap = document.createElement('div');
+            optionsWrap.className = 'nv-style-options';
+            optionsWrap.id = 'nv-style-options';
+
             this.STYLE_OPTIONS.forEach((option) => {
                 const button = document.createElement('button');
                 button.type = 'button';
@@ -1159,9 +1269,25 @@ Always verify critical or sensitive information independently.
                     <div class="nv-settings-label">${option.label}</div>
                     <div class="nv-settings-desc">${option.desc}</div>
                 `;
-                button.addEventListener('click', () => this.setResponseStyle(option.id));
-                this.elements.settingsList.appendChild(button);
+                button.addEventListener('click', () => {
+                    this.setResponseStyle(option.id);
+                    selector.classList.remove('open');
+                });
+                optionsWrap.appendChild(button);
             });
+
+            selector.appendChild(toggle);
+            selector.appendChild(optionsWrap);
+            this.elements.settingsList.appendChild(selector);
+
+            const dataTitle = this.elements.settingsPanel?.querySelector('.nv-settings-section-title.data');
+            if (!dataTitle && this.elements.settingsPanel) {
+                const title = document.createElement('div');
+                title.className = 'nv-settings-section-title data';
+                title.textContent = 'Data & Storage';
+                this.elements.settingsPanel.insertBefore(title, this.elements.settingsPanel.querySelector('.nv-settings-danger'));
+            }
+
             this.applyActiveStyle();
         }
 
@@ -1169,6 +1295,116 @@ Always verify critical or sensitive information independently.
             const infoPanel = this.elements.infoPanel;
             if (!infoPanel) return;
             // content is static in markup; hook for future dynamic updates if needed
+            this.initStorageUsageIndicator();
+        }
+
+
+        initStorageUsageIndicator() {
+            const root = this.elements.infoPanel?.querySelector('#nv-storage-usage');
+            if (!root) return;
+            this.elements.storageUsage = {
+                root,
+                donut: root.querySelector('.nv-storage-donut'),
+                conv: root.querySelector('.nv-storage-conv'),
+                settings: root.querySelector('.nv-storage-settings'),
+                used: root.querySelector('#nv-storage-used'),
+                total: root.querySelector('#nv-storage-total'),
+                remaining: root.querySelector('#nv-storage-remaining')
+            };
+            root.querySelectorAll('[data-nv-storage-focus]').forEach((item) => {
+                item.addEventListener('mouseenter', () => {
+                    this.state.storageFocus = item.dataset.nvStorageFocus || '';
+                    this.updateStorageUsage();
+                });
+                item.addEventListener('mouseleave', () => {
+                    this.state.storageFocus = '';
+                    this.updateStorageUsage();
+                });
+            });
+            this.updateStorageUsage();
+            if (this.storageUsageInterval) {
+                clearInterval(this.storageUsageInterval);
+            }
+            this.storageUsageInterval = setInterval(() => this.updateStorageUsage(), 2000);
+        }
+
+        getStorageBytes(value) {
+            if (value === undefined || value === null) return 0;
+            const str = typeof value === 'string' ? value : JSON.stringify(value);
+            if (!str) return 0;
+            if (typeof TextEncoder !== 'undefined') {
+                return new TextEncoder().encode(str).length;
+            }
+            let bytes = 0;
+            for (let i = 0; i < str.length; i += 1) {
+                const code = str.charCodeAt(i);
+                bytes += code < 0x80 ? 1 : (code < 0x800 ? 2 : 3);
+            }
+            return bytes;
+        }
+
+        formatBytes(bytes) {
+            if (!bytes || bytes <= 0) return '0 MB';
+            const mb = bytes / (1024 * 1024);
+            return `${mb.toFixed(mb < 1 ? 2 : 1)} MB`;
+        }
+
+        updateStorageUsage() {
+            const refs = this.elements.storageUsage;
+            if (!refs) return;
+            const total = this.TOTAL_STORAGE_BYTES;
+            const conversationKeys = new Set(['NeuraVeil_history', 'NeuraVeil_active_chat_id']);
+            let conversationsBytes = 0;
+            let settingsBytes = 0;
+            const keys = typeof GM_listValues === 'function' ? GM_listValues() : [];
+            if (keys.length) {
+                keys.forEach((key) => {
+                    const bytes = this.getStorageBytes(GM_getValue(key, ''));
+                    if (conversationKeys.has(key)) {
+                        conversationsBytes += bytes;
+                    } else {
+                        settingsBytes += bytes;
+                    }
+                });
+            } else {
+                conversationsBytes = this.getStorageBytes(GM_getValue('NeuraVeil_history', '')) +
+                    this.getStorageBytes(GM_getValue('NeuraVeil_active_chat_id', ''));
+                settingsBytes = this.getStorageBytes(GM_getValue('NeuraVeil_style', '')) +
+                    this.getStorageBytes(GM_getValue('NeuraVeil_reasoning', '')) +
+                    this.getStorageBytes(GM_getValue('NeuraVeil_trigger_pos', '')) +
+                    this.getStorageBytes(GM_getValue('NeuraVeil_sidebar_side', '')) +
+                    this.getStorageBytes(GM_getValue('NeuraVeil_sidebar_width', ''));
+            }
+            const used = Math.min(total, conversationsBytes + settingsBytes);
+            const remaining = Math.max(0, total - used);
+
+            const focus = this.state.storageFocus || '';
+            const showBytes = focus === 'conversations'
+                ? conversationsBytes
+                : (focus === 'settings' ? settingsBytes : used);
+            const percent = total ? Math.round((showBytes / total) * 100) : 0;
+
+            if (refs.used) refs.used.textContent = this.formatBytes(showBytes);
+            if (refs.total) refs.total.textContent = `${percent}%`;
+            if (refs.remaining) refs.remaining.textContent = `Remaining ${this.formatBytes(remaining)} / ${this.formatBytes(total)}`;
+
+            const r = 36;
+            const circumference = 2 * Math.PI * r;
+            const convLen = Math.min(circumference, (conversationsBytes / total) * circumference);
+            const settingsLen = Math.min(circumference - convLen, (settingsBytes / total) * circumference);
+
+            if (refs.conv) {
+                const len = focus === 'settings' ? 0 : convLen;
+                refs.conv.setAttribute('stroke-dasharray', `${len} ${circumference}`);
+                refs.conv.setAttribute('stroke-dashoffset', '0');
+                refs.conv.style.opacity = len > 0 ? '1' : '0';
+            }
+            if (refs.settings) {
+                const len = focus === 'conversations' ? 0 : settingsLen;
+                refs.settings.setAttribute('stroke-dasharray', `${len} ${circumference}`);
+                refs.settings.setAttribute('stroke-dashoffset', `${focus === 'settings' ? 0 : -convLen}`);
+                refs.settings.style.opacity = len > 0 ? '1' : '0';
+            }
         }
 
         loadSavedStyle() {
@@ -1187,6 +1423,13 @@ Always verify critical or sensitive information independently.
             this.applySidebarSide();
         }
 
+        loadSavedSidebarWidth() {
+            const savedWidth = Number(GM_getValue('NeuraVeil_sidebar_width', this.SIDEBAR_WIDTH));
+            if (!Number.isNaN(savedWidth)) {
+                this.state.sidebarWidth = this.clampSidebarWidth(savedWidth);
+            }
+        }
+
         setResponseStyle(styleId) {
             if (!this.STYLE_OPTIONS.some(option => option.id === styleId)) return;
             this.state.responseStyle = styleId;
@@ -1199,13 +1442,21 @@ Always verify critical or sensitive information independently.
             items.forEach((item) => {
                 item.classList.toggle('active', item.dataset.style === this.state.responseStyle);
             });
+            const toggle = this.elements.settingsList.querySelector('#nv-style-toggle');
+            const selected = this.STYLE_OPTIONS.find(option => option.id === this.state.responseStyle);
+            if (toggle && selected) {
+                const label = toggle.querySelector('.nv-settings-label');
+                const desc = toggle.querySelector('.nv-settings-desc');
+                if (label) label.textContent = selected.label;
+                if (desc) desc.textContent = selected.desc;
+            }
         }
 
         applySidebarSide() {
             if (!this.elements.panel) return;
             const isLeft = this.state.sidebarSide === 'left';
             this.elements.panel.classList.toggle('sidebar-left', isLeft);
-            this.updateBodyOffset();
+            this.applySidebarWidth();
         }
 
         toggleSidebarSide(animate = false) {
@@ -1235,6 +1486,40 @@ Always verify critical or sensitive information independently.
             }
 
             applySide();
+        }
+
+        clampSidebarWidth(value) {
+            return Math.min(this.MAX_SIDEBAR_WIDTH, Math.max(this.MIN_SIDEBAR_WIDTH, value));
+        }
+
+        applySidebarWidth() {
+            if (!this.elements.panel) return;
+            if (this.state.isSidebar) {
+                const width = this.clampSidebarWidth(this.state.sidebarWidth || this.SIDEBAR_WIDTH);
+                this.state.sidebarWidth = width;
+                this.elements.panel.style.width = `${width}px`;
+            } else {
+                this.elements.panel.style.width = '';
+            }
+            this.updateSidebarResizer();
+            this.updateBodyOffset();
+        }
+
+        updateSidebarResizer() {
+            const resizer = this.elements.sidebarResizer;
+            if (!resizer) return;
+            if (!this.state.isSidebar) {
+                resizer.style.display = 'none';
+                return;
+            }
+            resizer.style.display = 'block';
+            if (this.state.sidebarSide === 'left') {
+                resizer.style.left = '';
+                resizer.style.right = '0';
+            } else {
+                resizer.style.right = '';
+                resizer.style.left = '0';
+            }
         }
 
         temporarilyHideSidebarArrow() {
@@ -1902,10 +2187,12 @@ Always verify critical or sensitive information independently.
             this.elements.panel.classList.toggle('sidebar', this.state.isSidebar);
             if (this.state.isSidebar) {
                 this.resetPanelPlacement();
+                this.applySidebarWidth();
                 if (!this.state.isOpen) {
                     requestAnimationFrame(() => this.togglePanel(true));
                 }
             } else if (this.state.isOpen) {
+                this.applySidebarWidth();
                 this.schedulePanelPlacement();
             }
             this.updateBodyOffset();
@@ -2020,8 +2307,9 @@ Always verify critical or sensitive information independently.
         updateBodyOffset() {
             const shouldOffset = this.state.isSidebar && this.state.isOpen;
             const isLeft = this.state.sidebarSide === 'left';
-            document.body.style.marginLeft = shouldOffset && isLeft ? `${this.SIDEBAR_WIDTH}px` : '';
-            document.body.style.marginRight = shouldOffset && !isLeft ? `${this.SIDEBAR_WIDTH}px` : '';
+            const width = this.clampSidebarWidth(this.state.sidebarWidth || this.SIDEBAR_WIDTH);
+            document.body.style.marginLeft = shouldOffset && isLeft ? `${width}px` : '';
+            document.body.style.marginRight = shouldOffset && !isLeft ? `${width}px` : '';
         }
 
 
@@ -2249,6 +2537,7 @@ Always verify critical or sensitive information independently.
                 this.state.responseStyle = 'default';
                 this.state.reasoningEffort = 'low';
                 this.state.sidebarSide = 'right';
+                this.state.sidebarWidth = this.SIDEBAR_WIDTH;
 
                 GM_setValue('NeuraVeil_history', '');
                 GM_setValue('NeuraVeil_active_chat_id', '');
@@ -2256,6 +2545,7 @@ Always verify critical or sensitive information independently.
                 GM_setValue('NeuraVeil_reasoning', '');
                 GM_setValue('NeuraVeil_trigger_pos', '');
                 GM_setValue('NeuraVeil_sidebar_side', '');
+                GM_setValue('NeuraVeil_sidebar_width', '');
 
                 this.resetHistorySearch();
                 this.resetTriggerPosition();
@@ -3083,6 +3373,8 @@ Always verify critical or sensitive information independently.
 
         renderTextWithBoldAndLinks(text) {
             const tokens = [
+                { open: '***', close: '***', tag: 'strongem' },
+                { open: '___', close: '___', tag: 'strongem' },
                 { open: '**', close: '**', tag: 'strong' },
                 { open: '~~', close: '~~', tag: 'del' },
                 { open: '<u>', close: '</u>', tag: 'u' },
@@ -3145,7 +3437,11 @@ Always verify critical or sensitive information independently.
                 }
 
                 const renderedInner = this.renderTextWithBoldAndLinks(inner);
-                html += `<${tag}>${renderedInner.html}</${tag}>`;
+                if (tag === 'strongem') {
+                    html += `<strong><em>${renderedInner.html}</em></strong>`;
+                } else {
+                    html += `<${tag}>${renderedInner.html}</${tag}>`;
+                }
                 hasMarkup = true;
                 index = end + close.length;
             }
@@ -3153,44 +3449,176 @@ Always verify critical or sensitive information independently.
             return { html, hasMarkup };
         }
 
-        renderTextWithInlineCode(text) {
+        renderTextWithInlineCode(text, options = {}) {
             const inlineCodeRegex = /`([^`]+)`/g;
-            let html = '';
-            let hasMarkup = false;
+            const segments = [];
+            let output = '';
             let lastIndex = 0;
             let match;
 
             while ((match = inlineCodeRegex.exec(text)) !== null) {
-                const before = text.slice(lastIndex, match.index);
-                const beforeRendered = this.renderTextWithBoldAndLinks(before);
-                html += beforeRendered.html;
-                hasMarkup = hasMarkup || beforeRendered.hasMarkup;
-
+                output += text.slice(lastIndex, match.index);
+                const placeholder = `%%NV-CODE-${segments.length}%%`;
                 const code = this.escapeHtml(match[1]);
-                html += `<code class="nv-inline-code">${code}</code>`;
-                hasMarkup = true;
-
+                segments.push({ placeholder, html: `<code class="nv-inline-code">${code}</code>` });
+                output += placeholder;
                 lastIndex = inlineCodeRegex.lastIndex;
             }
 
-            const tail = text.slice(lastIndex);
-            const tailRendered = this.renderTextWithBoldAndLinks(tail);
-            html += tailRendered.html;
-            hasMarkup = hasMarkup || tailRendered.hasMarkup;
+            output += text.slice(lastIndex);
 
-            return { html, hasMarkup };
+            const preserveTables = Boolean(options.preserveTables);
+            let tableSegments = [];
+            if (preserveTables) {
+                const extractedTables = this.extractTableSegments(output);
+                output = extractedTables.text;
+                tableSegments = extractedTables.segments;
+            }
+
+            const brPlaceholder = '%%NV-BR%%';
+            let hasBr = false;
+            if (/<br\s*\/?>/i.test(output)) {
+                output = output.replace(/<br\s*\/?>/gi, brPlaceholder);
+                hasBr = true;
+            }
+
+            const rendered = this.renderTextWithBoldAndLinks(output);
+            let html = rendered.html;
+            if (hasBr) {
+                html = html.split(brPlaceholder).join('<br>');
+            }
+            if (tableSegments.length) {
+                tableSegments.forEach((segment) => {
+                    html = html.split(segment.placeholder).join(segment.html);
+                });
+            }
+            segments.forEach((segment) => {
+                html = html.split(segment.placeholder).join(segment.html);
+            });
+
+            return { html, hasMarkup: rendered.hasMarkup || hasBr || segments.length > 0 || tableSegments.length > 0 };
         }
 
-        renderInlineMarkdown(text) {
+        renderInlineMarkdown(text, options = {}) {
             const extracted = this.extractMathSegments(text);
-            const rendered = this.renderTextWithInlineCode(extracted.text);
+            const extractedAbbr = this.extractAbbrSegments(extracted.text);
+            const rendered = this.renderTextWithInlineCode(extractedAbbr.text, options);
             let html = rendered.html.replace(/\n/g, '<br>');
+            extractedAbbr.segments.forEach((segment) => {
+                html = html.split(segment.placeholder).join(segment.html);
+            });
             extracted.segments.forEach((segment) => {
                 const safeMath = this.escapeHtml(segment.text);
                 html = html.split(segment.placeholder).join(safeMath);
             });
             const fallback = this.escapeHtml(text).replace(/\n/g, '<br>');
             return { html, hasMarkup: rendered.hasMarkup || html !== fallback };
+        }
+
+        extractTableSegments(text) {
+            const segments = [];
+            let output = '';
+            let lastIndex = 0;
+            const regex = /<table\b[\s\S]*?<\/table>/gi;
+            let match;
+
+            while ((match = regex.exec(text)) !== null) {
+                output += text.slice(lastIndex, match.index);
+                const placeholder = `%%NV-TABLE-${segments.length}%%`;
+                segments.push({ placeholder, html: match[0] });
+                output += placeholder;
+                lastIndex = regex.lastIndex;
+            }
+
+            output += text.slice(lastIndex);
+            return { text: output, segments };
+        }
+
+        sanitizeAbbrTag(rawTag) {
+            const innerMatch = String(rawTag || '').match(/<abbr\b[^>]*>([\s\S]*?)<\/abbr>/i);
+            const innerText = innerMatch ? innerMatch[1] : '';
+            const titleMatch = String(rawTag || '').match(/\btitle\s*=\s*(?:"([^"]*)"|'([^']*)')/i);
+            const titleText = titleMatch ? (titleMatch[1] || titleMatch[2] || '') : '';
+            const safeTitle = titleText ? this.escapeAttr(titleText) : '';
+            const safeText = this.escapeHtml(innerText);
+            const titleAttr = safeTitle ? ` title="${safeTitle}"` : '';
+            return `<abbr${titleAttr}>${safeText}</abbr>`;
+        }
+
+        extractAbbrSegments(text) {
+            const segments = [];
+            let output = '';
+            let lastIndex = 0;
+            const regex = /<abbr\b[^>]*>[\s\S]*?<\/abbr>/gi;
+            let match;
+
+            while ((match = regex.exec(text)) !== null) {
+                output += text.slice(lastIndex, match.index);
+                const placeholder = `%%NV-ABBR-${segments.length}%%`;
+                segments.push({ placeholder, html: this.sanitizeAbbrTag(match[0]) });
+                output += placeholder;
+                lastIndex = regex.lastIndex;
+            }
+
+            output += text.slice(lastIndex);
+            return { text: output, segments };
+        }
+
+        extractAbbrTags(line) {
+            const raw = String(line || '');
+            const trimmed = raw.trim();
+            if (!trimmed) return null;
+            const regex = /<abbr\b[^>]*>[\s\S]*?<\/abbr>/gi;
+            const tags = [];
+            let lastIndex = 0;
+            let match;
+
+            while ((match = regex.exec(trimmed)) !== null) {
+                if (match.index > lastIndex && trimmed.slice(lastIndex, match.index).trim()) {
+                    return null;
+                }
+                tags.push(match[0]);
+                lastIndex = regex.lastIndex;
+            }
+
+            if (!tags.length) return null;
+            if (trimmed.slice(lastIndex).trim()) return null;
+            return tags;
+        }
+
+        renderAbbrList(tags) {
+            const items = tags.map(tag => `<li>${this.sanitizeAbbrTag(tag)}</li>`).join('');
+            return `<ul class="nv-md-list nv-md-abbr-list">${items}</ul>`;
+        }
+
+        renderTableCellContent(text) {
+            const normalized = String(text || '');
+            const codeBlockRegex = /(^|\n)```([\w-]+)?[ \t]*\n([\s\S]*?)\n```[ \t]*(?=\n|$)/gm;
+            let html = '';
+            let lastIndex = 0;
+            let match;
+
+            while ((match = codeBlockRegex.exec(normalized)) !== null) {
+                const startIndex = match.index + (match[1] ? match[1].length : 0);
+                const before = normalized.slice(lastIndex, startIndex);
+                const beforeRendered = this.renderInlineMarkdown(before);
+                html += beforeRendered.html;
+
+                const lang = (match[2] || '').trim();
+                const langLabel = lang ? this.escapeHtml(lang) : 'Plain';
+                const langClass = lang ? lang.toLowerCase().replace(/[^a-z0-9_-]/g, '') : 'plaintext';
+                const rawCode = match[3].replace(/\s+$/, '');
+                const safeCode = this.escapeHtml(rawCode);
+                const codeClass = ` class="language-${langClass}"`;
+                html += `<div class="nv-code-block"><div class="nv-code-header"><div class="nv-code-left"><span class="nv-code-label">Code</span><button class="nv-code-copy" title="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div><span class="nv-code-lang">${langLabel}</span></div><pre><code${codeClass}>${safeCode}</code></pre></div>`;
+
+                lastIndex = codeBlockRegex.lastIndex;
+            }
+
+            const tail = normalized.slice(lastIndex);
+            const tailRendered = this.renderInlineMarkdown(tail);
+            html += tailRendered.html;
+            return html;
         }
 
         extractMathSegments(text) {
@@ -3268,7 +3696,34 @@ Always verify critical or sensitive information independently.
         parseTableRow(line) {
             const trimmed = String(line || '').trim();
             const row = trimmed.replace(/^\|/, '').replace(/\|$/, '');
-            return row.split('|').map(cell => cell.trim());
+            const cells = [];
+            let current = '';
+            let inInline = false;
+            let inFence = false;
+
+            for (let i = 0; i < row.length; i += 1) {
+                const ch = row[i];
+                if (!inInline && row.slice(i, i + 3) === '```') {
+                    inFence = !inFence;
+                    current += '```';
+                    i += 2;
+                    continue;
+                }
+                if (!inFence && ch === '`') {
+                    inInline = !inInline;
+                    current += ch;
+                    continue;
+                }
+                if (!inFence && !inInline && ch === '|' && row[i - 1] !== '\\') {
+                    cells.push(current.trim());
+                    current = '';
+                    continue;
+                }
+                current += ch;
+            }
+
+            cells.push(current.trim());
+            return cells;
         }
 
         isTableRowLine(line, requireEdges = true) {
@@ -3291,11 +3746,47 @@ Always verify critical or sensitive information independently.
             return String(line || '').split('\t').map(cell => cell.trim());
         }
 
+        countFenceMarkers(line) {
+            const matches = String(line || '').match(/```/g);
+            return matches ? matches.length : 0;
+        }
+
+        getTableRanges(text) {
+            const lines = String(text || '').split('\n');
+            const lineStarts = [];
+            let cursor = 0;
+            lines.forEach((line) => {
+                lineStarts.push(cursor);
+                cursor += line.length + 1;
+            });
+            const ranges = [];
+            for (let i = 0; i < lines.length - 1; i += 1) {
+                const line = lines[i];
+                const nextLine = lines[i + 1] || '';
+                if (!this.isTableRowLine(line) || !this.isTableSeparatorLine(nextLine)) continue;
+                let inFence = false;
+                let j = i + 2;
+                while (j < lines.length) {
+                    const rowLine = lines[j];
+                    if (!inFence && !this.isTableRowLine(rowLine)) break;
+                    if (this.countFenceMarkers(rowLine) % 2 === 1) {
+                        inFence = !inFence;
+                    }
+                    j += 1;
+                }
+                const endLine = Math.max(i + 1, j - 1);
+                const start = lineStarts[i];
+                const end = lineStarts[endLine] + lines[endLine].length;
+                ranges.push({ start, end });
+                i = endLine;
+            }
+            return ranges;
+        }
+
         renderTableFromRows(headerCells, bodyRows) {
             const maxCols = Math.max(headerCells.length, ...bodyRows.map(row => row.length), 0);
             const renderCell = (cell) => {
-                const rendered = this.renderInlineMarkdown(cell || '');
-                return rendered.html;
+                return this.renderTableCellContent(cell || '');
             };
             const tableBar = `<div class="nv-md-table-bar"><div class="nv-md-table-title"><span class="nv-code-label">Table</span><button class="nv-md-table-action" data-nv-table-wrap-toggle title="Wrap text" aria-pressed="false">${this.getTableWrapIconSvg()}</button><button class="nv-md-table-action" data-nv-table-fullscreen title="Fullscreen">${this.getTableFullscreenIconSvg()}</button></div></div>`;
             let html = `<div class="nv-md-table-wrap nv-table-scroll-x">${tableBar}<div class="nv-md-table-scroll"><table class="nv-md-table"><thead><tr>`;
@@ -3431,6 +3922,28 @@ Always verify critical or sensitive information independently.
                     continue;
                 }
 
+                const abbrTags = this.extractAbbrTags(line);
+                if (abbrTags) {
+                    const nextTags = this.extractAbbrTags(lines[i + 1] || '');
+                    if (abbrTags.length >= 2 || nextTags) {
+                        flushParagraph();
+                        flushQuote();
+                        flushList();
+                        let collected = abbrTags.slice();
+                        let j = i + 1;
+                        while (j < lines.length) {
+                            const moreTags = this.extractAbbrTags(lines[j]);
+                            if (!moreTags) break;
+                            collected = collected.concat(moreTags);
+                            j += 1;
+                        }
+                        html += this.renderAbbrList(collected);
+                        hasMarkup = true;
+                        i = j - 1;
+                        continue;
+                    }
+                }
+
                 const nextLine = lines[i + 1] || '';
                 if (this.isTabRowLine(line)) {
                     flushParagraph();
@@ -3456,10 +3969,22 @@ Always verify critical or sensitive information independently.
                     const headerCells = this.parseTableRow(line);
                     i += 1;
                     const bodyRows = [];
-                    while (i + 1 < lines.length && this.isTableRowLine(lines[i + 1]) && lines[i + 1].trim()) {
-                        bodyRows.push(this.parseTableRow(lines[i + 1]));
-                        i += 1;
+                    let rowIndex = i + 1;
+                    while (rowIndex < lines.length && lines[rowIndex].trim()) {
+                        if (!this.isTableRowLine(lines[rowIndex])) break;
+                        let rowText = lines[rowIndex];
+                        let inFence = this.countFenceMarkers(rowText) % 2 === 1;
+                        while (inFence && rowIndex + 1 < lines.length) {
+                            rowIndex += 1;
+                            rowText += `\n${lines[rowIndex]}`;
+                            if (this.countFenceMarkers(lines[rowIndex]) % 2 === 1) {
+                                inFence = !inFence;
+                            }
+                        }
+                        bodyRows.push(this.parseTableRow(rowText));
+                        rowIndex += 1;
                     }
+                    i = rowIndex - 1;
                     html += this.renderTableFromRows(headerCells, bodyRows);
                     hasMarkup = true;
                     continue;
@@ -3560,22 +4085,28 @@ Always verify critical or sensitive information independently.
 
         renderTextWithFormatting(text) {
             const normalized = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-            const codeBlockRegex = /```([\w-]+)?\s*\n([\s\S]*?)```/g;
+            const codeBlockRegex = /(^|\n)```([\w-]+)?[ \t]*\n([\s\S]*?)\n```[ \t]*(?=\n|$)/gm;
             let html = '';
             let hasMarkup = false;
             let lastIndex = 0;
             let match;
+            const tableRanges = this.getTableRanges(normalized);
+            const isInTable = (index) => tableRanges.some(range => index >= range.start && index < range.end);
 
             while ((match = codeBlockRegex.exec(normalized)) !== null) {
-                const before = normalized.slice(lastIndex, match.index);
+                const startIndex = match.index + (match[1] ? match[1].length : 0);
+                if (isInTable(startIndex)) {
+                    continue;
+                }
+                const before = normalized.slice(lastIndex, startIndex);
                 const beforeRendered = this.renderMarkdownBlocks(before);
                 html += beforeRendered.html;
                 hasMarkup = hasMarkup || beforeRendered.hasMarkup;
 
-                const lang = (match[1] || '').trim();
+                const lang = (match[2] || '').trim();
                 const langLabel = lang ? this.escapeHtml(lang) : 'Plain';
                 const langClass = lang ? lang.toLowerCase().replace(/[^a-z0-9_-]/g, '') : 'plaintext';
-                const rawCode = match[2].replace(/\s+$/, '');
+                const rawCode = match[3].replace(/\s+$/, '');
                 const safeCode = this.escapeHtml(rawCode);
                 const codeClass = ` class="language-${langClass}"`;
                 html += `<div class="nv-code-block"><div class="nv-code-header"><div class="nv-code-left"><span class="nv-code-label">Code</span><button class="nv-code-copy" title="Copy code"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div><span class="nv-code-lang">${langLabel}</span></div><pre><code${codeClass}>${safeCode}</code></pre></div>`;
@@ -4930,5 +5461,6 @@ Always verify critical or sensitive information independently.
     } else {
         new NeuraVeil();
     }
+
 
 })();
