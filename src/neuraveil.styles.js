@@ -268,12 +268,79 @@ const NEURAVEIL_CSS = `
                     letter-spacing: 0.2px;
                     padding-right: 28px;
                 }
+                .nv-settings-section-title {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: rgba(255, 255, 255, 0.55);
+                    margin: 4px 0 -2px;
+                }
+                .nv-settings-section-title.data {
+                    margin-top: 12px;
+                }
                 .nv-settings-list {
                     flex: 1;
                     display: flex;
                     flex-direction: column;
-                    gap: 8px;
+                    gap: 10px;
                     overflow-y: auto;
+                }
+                .nv-style-select {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                .nv-style-toggle {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    text-align: left;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid var(--nv-border);
+                    border-radius: 12px;
+                    padding: 10px 12px;
+                    color: var(--nv-text);
+                    cursor: pointer;
+                    transition: all 0.2s;
+                }
+                .nv-style-toggle:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                }
+                .nv-style-toggle-text .nv-settings-label {
+                    font-size: 13px;
+                    font-weight: 600;
+                }
+                .nv-style-toggle-text .nv-settings-desc {
+                    font-size: 11px;
+                    color: var(--nv-text-muted);
+                    margin-top: 4px;
+                }
+                .nv-style-chevron {
+                    width: 16px;
+                    height: 16px;
+                    opacity: 0.7;
+                    transition: transform 0.2s ease;
+                }
+                .nv-style-select.open .nv-style-chevron {
+                    transform: rotate(180deg);
+                }
+                .nv-style-options {
+                    display: none;
+                    flex-direction: column;
+                    gap: 8px;
+                }
+                .nv-style-select.open .nv-style-options {
+                    display: flex;
+                }
+                .nv-style-options .nv-settings-item {
+                    padding: 8px 10px;
+                }
+                .nv-style-options .nv-settings-label {
+                    font-size: 12px;
+                }
+                .nv-style-options .nv-settings-desc {
+                    font-size: 11px;
                 }
                 .nv-settings-item {
                     text-align: left;
@@ -447,6 +514,14 @@ const NEURAVEIL_CSS = `
                     color: var(--nv-text);
                     padding-right: 28px;
                 }
+                .nv-info-section-title {
+                    font-size: 11px;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: rgba(255, 255, 255, 0.55);
+                    margin: 2px 0 -2px;
+                }
                 .nv-info-grid {
                     display: grid;
                     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -466,6 +541,12 @@ const NEURAVEIL_CSS = `
                 }
                 .nv-info-card.variant-c {
                     background: linear-gradient(135deg, rgba(244, 114, 182, 0.08), rgba(250, 204, 21, 0.08));
+                }
+                .nv-info-card h4 {
+                    margin: 0 0 6px 0;
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: var(--nv-text);
                 }
                 .nv-info-card h4 {
                     margin: 0 0 6px 0;
@@ -553,6 +634,106 @@ const NEURAVEIL_CSS = `
                     border-color: rgba(var(--nv-support-accent), 0.55);
                     background: rgba(var(--nv-support-accent), 0.12);
                     transform: translateY(-1px);
+                }
+                .nv-storage {
+                    border: 1px solid var(--nv-border);
+                    border-radius: 14px;
+                    padding: 12px;
+                    background: rgba(255, 255, 255, 0.03);
+                }
+                .nv-storage-header {
+                    font-size: 12px;
+                    font-weight: 700;
+                    color: var(--nv-text);
+                    margin-bottom: 8px;
+                }
+                .nv-storage-body {
+                    display: flex;
+                    gap: 12px;
+                    align-items: center;
+                    flex-wrap: wrap;
+                }
+                .nv-storage-chart {
+                    position: relative;
+                    width: 96px;
+                    height: 96px;
+                    flex: 0 0 auto;
+                }
+                .nv-storage-donut {
+                    width: 96px;
+                    height: 96px;
+                    transform: rotate(-90deg);
+                }
+                .nv-storage-ring {
+                    fill: none;
+                    stroke: rgba(255, 255, 255, 0.08);
+                    stroke-width: 10;
+                }
+                .nv-storage-seg {
+                    fill: none;
+                    stroke-width: 10;
+                    stroke-linecap: round;
+                    transition: stroke-dasharray 0.25s ease;
+                }
+                .nv-storage-conv {
+                    stroke: #60a5fa;
+                }
+                .nv-storage-settings {
+                    stroke: #f59e0b;
+                }
+                .nv-storage-center {
+                    position: absolute;
+                    inset: 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    color: var(--nv-text);
+                    pointer-events: none;
+                }
+                .nv-storage-used {
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+                .nv-storage-total {
+                    font-size: 11px;
+                    color: var(--nv-text-muted);
+                }
+                .nv-storage-meta {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 8px;
+                    min-width: 160px;
+                }
+                .nv-storage-remaining {
+                    font-size: 12px;
+                    color: var(--nv-text-muted);
+                }
+                .nv-storage-legend {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                }
+                .nv-storage-legend-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    font-size: 12px;
+                    color: var(--nv-text);
+                }
+                .nv-storage-swatch {
+                    width: 10px;
+                    height: 10px;
+                    border-radius: 999px;
+                    display: inline-block;
+                    background: currentColor;
+                }
+                .nv-storage-swatch.nv-storage-conv {
+                    color: #60a5fa;
+                }
+                .nv-storage-swatch.nv-storage-settings {
+                    color: #f59e0b;
                 }
 
                 /* Controls Row */
