@@ -6,6 +6,7 @@
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/DREwX-code/neuraveil?style=flat-square&label=Code%20quality&logo=codefactor&logoColor=white)](https://www.codefactor.io/repository/github/drewx-code/neuraveil/overview/main)
 
 ![NeuraVeil banner](./assets/media/NeuraVeil-banner.png)
+<div align="center"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&color=6850A1&center=true&vCenter=true&width=600&lines=Explain+this+code+step+by+step;Optimize+this+script+without+breaking+it;Summarize+this+article+in+5+bullet+points;Turn+my+notes+into+clean+documentation;Generate+an+image+that+explains+this+concept" alt="Typing SVG" /></div>
 
 [NeuraVeil](https://greasyfork.org/en/scripts/560252-neuraveil-ai-chat-in-your-browser) is an AI chat panel, lightweight and modern, that integrates naturally on any webpage.
 
